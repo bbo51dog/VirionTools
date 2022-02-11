@@ -1,0 +1,10 @@
+{
+    "name": "jackmd/virion_tools",
+    "description": "VirionTools",
+    "minimum-stability": "stable",
+    "license": "GPL-3.0-only",
+    "require": {
+        "pocketmine/pocketmine-mp": "4.2.0",
+        "ext-yaml": "*"
+    }
+}

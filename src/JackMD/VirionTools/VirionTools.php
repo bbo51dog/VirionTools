@@ -45,7 +45,7 @@ class VirionTools extends PluginBase{
 	/** @var string */
 	public const PREFIX = "§2[§6Virion§eTools§2]§r ";
 
-	public function onLoad(): void{
+	protected function onLoad(): void{
 		if(!is_dir($this->getDataFolder() . "builds" . DS)){
 			mkdir($this->getDataFolder() . "builds" . DS);
 		}
@@ -57,7 +57,7 @@ class VirionTools extends PluginBase{
 		$this->saveResource("data" . DS . "virion_stub.php", true);
 	}
 
-	public function onEnable(): void{
+	protected function onEnable(): void{
 		$commands = [
 			new CompileVirionCommand($this),
 			new InjectVirionCommand($this),

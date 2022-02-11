@@ -115,7 +115,7 @@ class VirionInjectScript{
 		$antibody = self::getPrefix($pluginYml) . $antigen;
 		$infectionLog[$antibody] = $virionYml;
 
-		$sender->sendMessage(VirionTools::PREFIX . "§aUsing antibody §2$antibody §afor virion §d$genus §2({$antigen})");
+		$sender->sendMessage(VirionTools::PREFIX . "§aUsing antibody §2$antibody §afor virion §d$genus §2($antigen)");
 
 		$hostPharPath = "phar://" . str_replace(DIRECTORY_SEPARATOR, "/", $host->getPath());
 
@@ -149,10 +149,10 @@ class VirionInjectScript{
 
 			$rel = self::cut_prefix($name, "phar://" . str_replace(DIRECTORY_SEPARATOR, "/", $virus->getPath()) . "/");
 
-			if(strpos($rel, "resources/") === 0){
+			if(str_starts_with($rel, "resources/")){
 				$host[$rel] = file_get_contents($name);
-			}elseif(strpos($rel, "src/") === 0){
-				if(strpos($rel, $restriction) !== 0){
+			}elseif(str_starts_with($rel, "src/")){
+				if(!str_starts_with($rel, $restriction)){
 					$sender->sendMessage(VirionTools::PREFIX . "§cWarning: File $rel in virion is not under the antigen $antigen ($restriction)");
 
 					$newRel = $rel;
@@ -187,9 +187,7 @@ class VirionInjectScript{
 		array_pop($mainArray);
 
 		$path = implode("\\", $mainArray);
-		$prefix = $path . "\\libs\\";
-
-		return $prefix;
+        return $path . "\\libs\\";
 	}
 
 	/**
@@ -198,7 +196,7 @@ class VirionInjectScript{
 	 * @return string
 	 */
 	private static function cut_prefix(string $string, string $prefix): string{
-		if(strpos($string, $prefix) !== 0){
+		if(!str_starts_with($string, $prefix)){
 			throw new AssertionError("\$string does not start with \$prefix:\n$string\n$prefix");
 		}
 
@@ -209,10 +207,10 @@ class VirionInjectScript{
 	 * @param string $chromosome
 	 * @param string $antigen
 	 * @param string $antibody
-	 * @param int    $count
+	 * @param int $count
 	 * @return string
 	 */
-	private static function change_dna(string $chromosome, string $antigen, string $antibody, &$count = 0): string{
+	private static function change_dna(string $chromosome, string $antigen, string $antibody, int &$count = 0): string{
 		$tokens = token_get_all($chromosome);
 		$tokens[] = ""; // should not be valid though
 
@@ -226,11 +224,13 @@ class VirionInjectScript{
 
 				if(isset($init, $current, $prefixToken)){
 					if($current === "" && $prefixToken === T_USE and $id === T_FUNCTION || $id === T_CONST){
-					}elseif($id === T_NS_SEPARATOR || $id === T_STRING){
+                        continue;
+					}
+                    if($id === T_NS_SEPARATOR || $id === T_STRING){
 						$current .= $str;
 					}elseif(!($current === "" && $prefixToken === T_USE and $id === T_FUNCTION || $id === T_CONST)){
 						// end of symbol reference
-						if(strpos($current, $antigen) === 0){ // case-sensitive!
+						if(str_starts_with($current, $antigen)){ // case-sensitive!
 							$new = $antibody . substr($current, strlen($antigen));
 
 							for($o = $init + 1; $o < $offset; ++$o){

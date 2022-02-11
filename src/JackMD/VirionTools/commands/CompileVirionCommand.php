@@ -35,13 +35,12 @@ namespace JackMD\VirionTools\commands;
 
 use JackMD\VirionTools\utils\VirionCompileScript;
 use JackMD\VirionTools\VirionTools;
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
 
-class CompileVirionCommand extends PluginCommand{
+class CompileVirionCommand extends Command{
 
-	/** @var VirionTools */
-	private $plugin;
+	private VirionTools $plugin;
 
 	/**
 	 * CompileVirionCommand constructor.
@@ -49,7 +48,7 @@ class CompileVirionCommand extends PluginCommand{
 	 * @param VirionTools $plugin
 	 */
 	public function __construct(VirionTools $plugin){
-		parent::__construct("compilevirion", $plugin);
+		parent::__construct("compilevirion");
 
 		$this->setDescription("Compile a virion.phar from a virion.");
 		$this->setUsage("/cv [string:virion]");
@@ -151,10 +150,7 @@ class CompileVirionCommand extends PluginCommand{
 
 			$realEntry
 		));
-
-		$stub = sprintf(VirionCompileScript::VIRION_STUB, $realEntry);
-
-		return $stub;
+        return sprintf(VirionCompileScript::VIRION_STUB, $realEntry);
 	}
 
 	/**

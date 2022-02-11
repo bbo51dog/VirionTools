@@ -33,7 +33,15 @@ declare(strict_types = 1);
 
 namespace JackMD\VirionTools\utils;
 
+use FilesystemIterator;
+use Generator;
 use Phar;
+use PharException;
+use PharFileInfo;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
+use RuntimeException;
 
 class VirionCompileScript{
 
@@ -57,7 +65,7 @@ class VirionCompileScript{
 	 */
 	public static function generateVirionMetadataFromYml(string $virionYmlPath): ?array{
 		if(!file_exists($virionYmlPath)){
-			throw new \RuntimeException("virion.yml not found. Aborting...");
+			throw new RuntimeException("virion.yml not found. Aborting...");
 		}
 
 		$virionYml = yaml_parse_file($virionYmlPath);
@@ -75,17 +83,18 @@ class VirionCompileScript{
 		];
 	}
 
-	/**
-	 * @param string   $pharPath
-	 * @param string   $basePath
-	 * @param array    $includedPaths
-	 * @param array    $metadata
-	 * @param string   $stub
-	 * @param int      $signatureAlgo
-	 * @param int|null $compression
-	 * @return \Generator
-	 */
-	public static function buildVirion(string $pharPath, string $basePath, array $includedPaths, array $metadata, string $stub, int $signatureAlgo = Phar::SHA1, ?int $compression = null){
+    /**
+     * @param string $pharPath
+     * @param string $basePath
+     * @param array $includedPaths
+     * @param array $metadata
+     * @param string $stub
+     * @param int $signatureAlgo
+     * @param int|null $compression
+     * @return Generator
+     * @throws PharException
+     */
+	public static function buildVirion(string $pharPath, string $basePath, array $includedPaths, array $metadata, string $stub, int $signatureAlgo = Phar::SHA1, ?int $compression = null): Generator {
 		if(file_exists($pharPath)){
 			yield "Phar file already exists, overwriting...";
 
@@ -118,9 +127,9 @@ class VirionCompileScript{
 			implode('|', self::preg_quote_array($includedPaths, '/'))
 		);
 
-		$directory = new \RecursiveDirectoryIterator($basePath, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS | \FilesystemIterator::CURRENT_AS_PATHNAME);
-		$iterator = new \RecursiveIteratorIterator($directory);
-		$regexIterator = new \RegexIterator($iterator, $regex);
+		$directory = new RecursiveDirectoryIterator($basePath, FilesystemIterator::SKIP_DOTS | FilesystemIterator::FOLLOW_SYMLINKS | FilesystemIterator::CURRENT_AS_PATHNAME);
+		$iterator = new RecursiveIteratorIterator($directory);
+		$regexIterator = new RegexIterator($iterator, $regex);
 
 		$count = count($phar->buildFromIterator($regexIterator, $basePath));
 
@@ -128,8 +137,8 @@ class VirionCompileScript{
 
 		if($compression !== null){
 			yield "Checking for compressible files...";
-			foreach($phar as $file => $finfo){
-				/** @var \PharFileInfo $finfo */
+			foreach($phar as $finfo){
+				/** @var PharFileInfo $finfo */
 				if($finfo->getSize() > (1024 * 512)){
 					yield "Compressing " . $finfo->getFilename();
 					$finfo->compress($compression);

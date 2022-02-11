@@ -36,8 +36,8 @@ namespace JackMD\VirionTools\commands;
 use JackMD\VirionTools\utils\VirionInjectScript;
 use JackMD\VirionTools\VirionTools;
 use Phar;
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
 use function file_get_contents;
 use function is_array;
 use function microtime;
@@ -47,10 +47,9 @@ use function strpos;
 use function yaml_parse;
 use const DIRECTORY_SEPARATOR;
 
-class InjectAllCommand extends PluginCommand{
+class InjectAllCommand extends Command{
 
-	/** @var VirionTools */
-	private $plugin;
+	private VirionTools $plugin;
 
 	/**
 	 * InjectAllCommand constructor.
@@ -58,7 +57,7 @@ class InjectAllCommand extends PluginCommand{
 	 * @param VirionTools $plugin
 	 */
 	public function __construct(VirionTools $plugin){
-		parent::__construct("injectall", $plugin);
+		parent::__construct("injectall");
 
 		$this->setDescription("Inject all virions in the plugin using a single command.");
 		$this->setUsage("/injectall [string:plugin]");
@@ -90,7 +89,7 @@ class InjectAllCommand extends PluginCommand{
 
 		$plugin = (string) $args[0];
 
-		if(strpos($plugin, ".phar") === false){
+		if(!str_contains($plugin, ".phar")){
 			$plugin = $plugin . ".phar";
 		}
 
@@ -139,7 +138,7 @@ class InjectAllCommand extends PluginCommand{
 		$virions = $pluginYml["virions"];
 
 		foreach($virions as $virion){
-			if(strpos($virion, ".phar") === false){
+			if(!str_contains($virion, ".phar")){
 				$virion = $virion . ".phar";
 			}
 

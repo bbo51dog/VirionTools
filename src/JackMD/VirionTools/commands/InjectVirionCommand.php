@@ -35,12 +35,12 @@ namespace JackMD\VirionTools\commands;
 
 use JackMD\VirionTools\utils\VirionInjectScript;
 use JackMD\VirionTools\VirionTools;
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
 
 use Phar;
 
-class InjectVirionCommand extends PluginCommand{
+class InjectVirionCommand extends Command{
 
 	/** @var VirionTools */
 	private $plugin;
@@ -51,7 +51,7 @@ class InjectVirionCommand extends PluginCommand{
 	 * @param VirionTools $plugin
 	 */
 	public function __construct(VirionTools $plugin){
-		parent::__construct("injectvirion", $plugin);
+		parent::__construct("injectvirion");
 
 		$this->setDescription("Inject a virion.phar into a plugin.phar");
 		$this->setUsage("/injectvirion [string:virion] [string:plugin]");
@@ -80,11 +80,11 @@ class InjectVirionCommand extends PluginCommand{
 		$virion = (string) $args[0];
 		$plugin = (string) $args[1];
 
-		if(strpos($virion, ".phar") === false){
+		if(!str_contains($virion, ".phar")){
 			$virion = $virion . ".phar";
 		}
 
-		if(strpos($plugin, ".phar") === false){
+		if(!str_contains($plugin, ".phar")){
 			$plugin = $plugin . ".phar";
 		}
 
